@@ -53,22 +53,97 @@ View(node_measures)
 
 
 # organize enron data set into JobLevel 
+library(stringr)
 
 
-table(node_measures$Note)
+unique(node_measures$Note)
+
+
+# create JobLevel column and sort alphabetically
+
+unique(nodes_with_levels$Note) 
+
+nodes_with_levels <- node_measures %>%
+  mutate(JobLevel = Note) %>%
+  arrange(JobLevel)
+
+# simplify Job Levels 
+
+nodes_with_levels$JobLevel[1:5] <- "CEO"
+nodes_with_levels$JobLevel[6:19] <- "Director"
+nodes_with_levels$JobLevel[20:60] <- "Employee"
+nodes_with_levels$JobLevel[62:84] <- "Manager"
+nodes_with_levels$JobLevel[85:138] <- "NA" 
+nodes_with_levels$JobLevel[139:143] <- "President"
+nodes_with_levels$JobLevel[144:154] <- "Trader" 
+nodes_with_levels$JobLevel[155:184] <- "Vice President"
+  
+# 9 job levels on a relatively small data 
+
+# visualize counts by job level 
+
+
+nodes_with_levels %>%
+  group_by(JobLevel) %>%
+  count(JobLevel) %>%
+  ggplot(aes(x = JobLevel, y = n, fill = JobLevel)) + 
+  geom_bar(stat = "identity") + theme(axis.text.x = element_blank()) + 
+  ylab("") 
+
+
+  
+
+# further clean up. Break into 4 layers - 
+# employee, associate, director, executive
+# Put lawyer in executive 
+
+View(nodes_with_levels) 
+nodes_with_levels$JobLevel[61] <- "Executive"
+nodes_with_levels$JobLevel["Employee"] <- nodes_with_levels$JobLevel["Associate"]
+nodes_with_levels$JobLevel["Director"] <- "Executive"
+
+nodes_with_levels <- nodes_with_levels %>%
+  mutate(JobLevel = ifelse (JobLevel == "CEO", "Executive", JobLevel)) %>%
+  mutate(JobLevel = ifelse (JobLevel == "Director", "Executive", JobLevel)) %>%
+  mutate(JobLevel = ifelse (JobLevel == "Vice President", "Executive", JobLevel)) %>%
+  mutate(JobLevel = ifelse (JobLevel == "President", "Executive", JobLevel)) %>%
+  mutate(JobLevel = ifelse (JobLevel == "Trader", "Associate", JobLevel)) %>%
+  mutate(JobLevel = ifelse (JobLevel == "NA", "Associate", JobLevel)) 
+  
+
+table(nodes_with_levels$JobLevel) 
+
+# start by breaking into  4 job levels
+# arbitrarily assigning Trader and NA to level 2 just above employee
+
+nodes_filtered <- nodes_with_levels %>%
+  select(-c(Email, Name, Note)) 
+
+
+
+# rearrange order of columns to put target variable in first column
+nodes_filtered <- nodes_filtered[, c(5,1,2,3,4)]
+head(nodes_filtered)
+
+
+
+
+# EDA of network structure characteristics by job level 
 
 
 
 
 
 
-# visualizing network centrality characteristics 
 
 
 
 
 
 
+
+
+# kNN - can model predict job level my measures of network centrality in organization?
 
 
 
