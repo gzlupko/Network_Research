@@ -182,7 +182,9 @@ grid.arrange(avg_in_degree, avg_out_degree, avg_strength, avg_between)
 
 
 
-# kNN - can model predict job level my measures of network centrality in organization?
+# kNN - can model classify job levels by centrality measures in an organization? 
+
+
 
 
 
