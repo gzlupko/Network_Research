@@ -1,6 +1,7 @@
 # Classification of organizational network 
 
 
+rm(list = ls())
 getwd()
 setwd("/Users/gianzlupko/Desktop/GitHub/NetworkResearch") 
 
@@ -12,6 +13,9 @@ library(igraph)
 library(tidygraph) 
 library(ggraph) 
 library(gridExtra) 
+library(dplyr)
+library(broom)
+
 
 
 # import data set 
@@ -27,7 +31,8 @@ enron
 
 
 
-# convert enron igraph object to data frame 
+# convert enron igraph object to data frame
+
 df <- as_data_frame(enron, what = c("both")) 
 
 
@@ -62,11 +67,13 @@ unique(node_measures$Note)
 
 # create JobLevel column and sort alphabetically
 
-unique(nodes_with_levels$Note) 
+
 
 nodes_with_levels <- node_measures %>%
   mutate(JobLevel = Note) %>%
   arrange(JobLevel)
+
+unique(nodes_with_levels$Note) 
 
 # simplify Job Levels 
 
@@ -175,10 +182,26 @@ avg_between <- ggplot(data = level_summary,
 
 grid.arrange(avg_in_degree, avg_out_degree, avg_strength, avg_between)
 
-
 # check for statistical significance
 
+head(nodes_filtered)
+lm(between ~ JobLevel, data = nodes_filtered) %>%
+  tidy()
+lm(in_degree ~ JobLevel, data = nodes_filtered) %>%
+  tidy()
+lm(out_degree ~ JobLevel, data = nodes_filtered) %>%
+  tidy()
+lm(strength~ JobLevel, data = nodes_filtered) %>%
+  tidy()
 
+
+
+
+# descriptive analyses on the enron network
+
+
+# network density = proportion of edges that exist in a network out of the total 
+# potential number that could exist
 
 
 
@@ -186,8 +209,76 @@ grid.arrange(avg_in_degree, avg_out_degree, avg_strength, avg_between)
 
 
 
+head(nodes_filtered)
+str(nodes_filtered)
 
 
+
+set.seed(801) 
+
+
+# randomize rows to mix up Job Level
+
+shuffle <- runif(nrow(nodes_filtered)) 
+nodes_filtered<- nodes_filtered[order(shuffle), ]
+str(nodes_filtered) 
+head(nodes_filtered) 
+
+
+# normalize functinon to be applied to predictors 
+normalize <- function(x) { 
+  return( (x-min(x)) / (max(x) - min(x) ) ) } 
+
+
+# apply normalize to nodes data set 
+nodes_norm <- as.data.frame(lapply(nodes_filtered[,c(2,3,4,5)], normalize))
+
+# check that the variable ranges have been normalized 
+str(nodes_norm)
+summary(nodes_norm)
+
+
+
+# determine data splits and create train and test data sets 
+
+184 * 0.8
+184 - 147
+
+nodes_train <- nodes_norm[1:147, ]
+nodes_test <- nodes_norm[148:184, ]
+
+
+
+
+# create vector of target category, Job Level 
+nodes_train_target <- nodes_filtered$JobLevel[1:147]
+nodes_test_target <- nodes_filtered$JobLevel[148:184]
+
+
+
+# load class to use kNN algorithm and determine appropriate k-value 
+
+library(class) 
+sqrt(184) 
+
+
+# run kNN and generate confusion matrix 
+
+pred <- knn(train = nodes_train, test = nodes_test, cl = nodes_train_target, k = 13) 
+tb <- table(nodes_test_target, pred)
+tb
+library(caret) 
+confusionMatrix(tb)
+
+
+
+
+
+# visualizations 
+
+ggraph(enron, layout = "with_kk") + geom_edge_link() + geom_node_point()
+
+ggraph(enron, layout = "with_kk") + geom_edge_link() + geom_node_point() 
 
 
 
