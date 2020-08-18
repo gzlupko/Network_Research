@@ -65,14 +65,10 @@ View(node_measures)
 
 
 # organize enron data set into JobLevel 
-library(stringr)
-
 
 unique(node_measures$Note)
 
-
 # create JobLevel column and sort alphabetically
-
 
 
 nodes_with_levels <- node_measures %>%
@@ -280,9 +276,9 @@ confusionMatrix(tb)
 
 # visualizations 
 
-ggraph(enron, layout = "with_kk") + geom_edge_link() + geom_node_point()
+# ggraph(enron, layout = "with_kk") + geom_edge_link() + geom_node_point()
 
-ggraph(enron, layout = "with_kk") + geom_edge_link() + geom_node_point() 
+# ggraph(enron, layout = "with_kk") + geom_edge_link() + geom_node_point() 
 
 
 
