@@ -8,13 +8,14 @@ setwd("/Users/gianzlupko/Desktop/GitHub/NetworkResearch")
 
 # load libraries 
 
+library(tidyverse)
 library(igraphdata)
 library(igraph)
 library(tidygraph) 
 library(ggraph) 
 library(gridExtra) 
-library(dplyr)
 library(broom)
+library(intergraph)
 
 
 
@@ -33,12 +34,17 @@ enron
 
 # convert enron igraph object to data frame
 
-df <- as_data_frame(enron, what = c("both")) 
-
+df <- asDF(enron)
+head(enron)
 
 # create data frame for nodes
-nodes <- df$vertices
+nodes <- df$vertexes
+head(nodes)
 
+# remove intergraph_id
+
+nodes <- nodes %>%
+  select(-intergraph_id) 
 
 
 # calculate centrality measures on igraph object 
@@ -74,12 +80,14 @@ nodes_with_levels <- node_measures %>%
   arrange(JobLevel)
 
 unique(nodes_with_levels$Note) 
+View(nodes_with_levels) 
 
 # simplify Job Levels 
 
 nodes_with_levels$JobLevel[1:5] <- "CEO"
 nodes_with_levels$JobLevel[6:19] <- "Director"
 nodes_with_levels$JobLevel[20:60] <- "Employee"
+nodes_with_levels$JobLevel[61] <- "Executive"
 nodes_with_levels$JobLevel[62:84] <- "Manager"
 nodes_with_levels$JobLevel[85:138] <- "NA" 
 nodes_with_levels$JobLevel[139:143] <- "President"
@@ -105,10 +113,6 @@ nodes_with_levels %>%
 # employee, associate, director, executive
 # Put lawyer in executive and arbitrarily assign NA and Trader to 'associate'
 
-View(nodes_with_levels) 
-nodes_with_levels$JobLevel[61] <- "Executive"
-nodes_with_levels$JobLevel["Employee"] <- nodes_with_levels$JobLevel["Associate"]
-nodes_with_levels$JobLevel["Director"] <- "Executive"
 
 nodes_with_levels <- nodes_with_levels %>%
   mutate(JobLevel = ifelse (JobLevel == "CEO", "Executive", JobLevel)) %>%
