@@ -280,6 +280,10 @@ confusionMatrix(tb)
 
 # ggraph(enron, layout = "with_kk") + geom_edge_link() + geom_node_point() 
 
+# - - - - - - - - - - - 
 
+# draw on (Ballinger, Cross, Holtom, 2015) - break job levels into: 
+# director level and above = 1, below = 0 
+# could run kNN again with logistic regression as alternative
 
 
