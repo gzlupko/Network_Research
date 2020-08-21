@@ -282,8 +282,91 @@ confusionMatrix(tb)
 
 # - - - - - - - - - - - 
 
-# draw on (Ballinger, Cross, Holtom, 2015) - break job levels into: 
+
+
+# Updates to make:
+
+# draw on (Ballinger, Cross, Holtom, 2015) - 
+# A) calculate eigenvector scores 
+# B) break job levels into: 
 # director level and above = 1, below = 0 
 # could run kNN again with logistic regression as alternative
+
+
+
+
+
+# create custom function to add eigen centrality scores in dplyr pipe 
+
+eigen_calc <- function(x) { 
+  
+  score = eigen_centrality(enron, directed = TRUE)
+  as.numeric(score$vector)
+  }
+
+knn_two <- nodes_filtered %>%
+  mutate(eigen = eigen_calc(enron)) 
+
+
+# view eigen centrality scores in descending order 
+
+knn_two %>%
+  arrange(desc(eigen)) %>%
+  head(10)
+
+# run kNN again on Job Level with eigen and in_degree centrality scores 
+
+knn_two <- nodes_filtered %>%
+  select(-c(out_degree, strength, between)) 
+
+
+head(knn_two)
+
+# Pearson correlation: in_degree and eignen vector centrality
+
+cor(knn_two$eigen, knn_two$in_degree)
+
+
+
+
+# run kNN algorithm implementation steps as above but with 
+# in_degree and eigen vector as predictors 
+
+
+
+
+set.seed(807) 
+
+
+# randomize rows to mix up Job Level
+
+shuffle_two <- runif(nrow(knn_two)) 
+knn_shuffled <- knn_two[order(shuffle_two), ]
+
+normalize <- function(x) { 
+  return( (x-min(x)) / (max(x) - min(x) ) ) } 
+norm_two <- as.data.frame(lapply(knn_two[,c(2,3)], normalize))
+
+train_two <- norm_two[1:147, ]
+test_two <- norm_two[148:184, ]
+
+
+train_target_two <- knn_shuffled$JobLevel[1:147]
+test_target_two <- knn_shuffled$JobLevel[148:184]
+
+library(class) 
+
+
+# run kNN and generate confusion matrix 
+
+pred_two <- knn(train = train_two, test = test_two, cl = train_target_two, k = 13) 
+tb_two <- table(test_target_two, pred_two)
+tb_two
+library(caret) 
+confusionMatrix(tb_two)
+
+
+
+# kNN unable to accurately classify Job Level based on in-degree and eigen scores 
 
 
