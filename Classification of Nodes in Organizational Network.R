@@ -61,7 +61,35 @@ node_measures <- nodes %>%
 str(node_measures) 
 View(node_measures)
 
+# example plot by centrality measures for the sake of discussion 
 
+library(threejs) 
+data(UKfaculty) 
+
+plot(UKfaculty, layout = layout_nicely(UKfaculty), edge.arrow.size = 0.1, 
+     vertex.size = 1, edge.color = "gray77")  
+
+graphjs(UKfaculty, vertex.size = 1) 
+
+UKfaculty_between <- betweenness(UKfaculty, directed  = TRUE) 
+
+
+faculty_in_degree <- degree(UKfaculty, mode = c("in")) 
+plot(UKfaculty, vertex.label = NA, vertex.size = sqrt(faculty_in_degree) + 1, 
+     edge.arrow.size = 0.05, layout = layout_nicely(UKfaculty))
+
+
+# visualize betweenness
+# custom function to reduce betweenness to 1/100th of original value
+
+between <- node_measures$between
+reduction <- function (x) { 
+  x * (1/100)
+  }
+plot(UKfaculty, vertex.label = NA, vertex.size = reduction(between), 
+     edge.arrow.size = 0.05)
+
+  
 
 
 # organize enron data set into JobLevel 
@@ -368,5 +396,11 @@ confusionMatrix(tb_two)
 
 
 # kNN unable to accurately classify Job Level based on in-degree and eigen scores 
+
+
+
+
+
+
 
 
