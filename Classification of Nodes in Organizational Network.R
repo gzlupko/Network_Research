@@ -436,8 +436,51 @@ head(nodes_filtered)
 
 
 
+
 # re-run kNN with three centrality measures tested in research 
 # in-degree, eigenvector, and constraint 
+
+knn_three <- nodes_filtered %>%
+  select(-c(strength, out_degree, between)) 
+head(knn_three) 
+
+set.seed(8104) 
+
+# randomize rows to mix up Job Level
+
+shuffle_three <- runif(nrow(knn_three)) 
+knn_shuffled_three <- knn_three[order(shuffle_three), ]
+
+normalize <- function(x) { 
+  return( (x-min(x)) / (max(x) - min(x) ) ) } 
+norm_three <- as.data.frame(lapply(knn_three[,c(2,3,4)], normalize))
+
+train_three <- norm_three[1:147, ]
+test_three <- norm_three[148:184, ]
+
+
+train_target_three <- knn_shuffled_three$JobLevel[1:147]
+test_target_three <- knn_shuffled_three$JobLevel[148:184]
+
+library(class) 
+
+
+# run kNN and generate confusion matrix 
+
+pred_three <- knn(train = train_three, test = test_three, cl = train_target_three, k = 13) 
+tb_three <- table(test_target_three, pred_three)
+tb_three
+library(caret) 
+confusionMatrix(tb_three)
+
+# update job levels to match research study - directors + are executives 
+# and below are non-executives
+
+
+
+
+
+
 
 
 
