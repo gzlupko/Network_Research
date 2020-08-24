@@ -92,6 +92,34 @@ plot(UKfaculty, vertex.label = NA, vertex.size = reduction(between),
   
 
 
+# visualize constraint
+# use Fast-Greedy to incidate network subgroups
+
+
+data(karate) 
+plot(karate) 
+karate_constraint <- constraint(karate)
+karate_2 <- set_vertex_attr(karate, "constraint", value = constraint(karate))
+vertex_attr(karate_2)
+
+# identify subgroups with fast greedy method and plot 
+karate_subgroups <- fastgreedy.community(karate)
+plot(karate_subgroups, karate) 
+
+# identify individuals who benefit from structural hole network position
+# higher constraint scores typically indicate lower brokerage 
+
+V(karate_2)[[constraint <= 0.20]]
+
+V(karate_2)$color <- ifelse(
+  
+  V(karate_2)$constraint < 0.20, "red", "white" 
+)
+
+plot(karate_2) 
+
+
+  
 # organize enron data set into JobLevel 
 
 unique(node_measures$Note)
@@ -396,6 +424,20 @@ confusionMatrix(tb_two)
 
 
 # kNN unable to accurately classify Job Level based on in-degree and eigen scores 
+# calculate network constraint and assign scores to nodes 
+
+
+enron_constraint<- constraint(enron)
+head(enron_constraint) 
+
+nodes_filtered <- nodes_filtered %>%
+  mutate(constraint = constraint(enron)) 
+head(nodes_filtered) 
+
+
+
+# re-run kNN with three centrality measures tested in research 
+# in-degree, eigenvector, and constraint 
 
 
 
