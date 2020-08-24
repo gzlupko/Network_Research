@@ -476,11 +476,55 @@ confusionMatrix(tb_three)
 # update job levels to match research study - directors + are executives 
 # and below are non-executives
 
+knn_three %>%
+  count(JobLevel) 
+
+
+head(knn_three) 
+knn_four <- knn_three %>%
+  mutate(Level = ifelse(JobLevel ==  "Executive", "Executive", "Non-Executive")) %>%
+  select(-JobLevel)
+head(knn_four) 
+
+# re-order columns 
+knn_four <- knn_four[, c(4,1,2,3)]
+head(knn_four) 
+
+
+
+# run kNN again with only two job levels 
+
+knn_four$Level <- as.factor(knn_four$Level) 
+class(knn_four$Level)
+
+set.seed(7003) 
+
+shuffle_four <- runif(nrow(knn_four)) 
+knn_shuffled_four <- knn_four[order(shuffle_four), ]
+
+normalize <- function(x) { 
+  return( (x-min(x)) / (max(x) - min(x) ) ) } 
+
+norm_four <- as.data.frame(lapply(knn_four[,c(2,3,4)], normalize))
+
+train_four <- norm_four[1:147, ]
+test_four <- norm_four[148:184, ]
+
+train_target_four <- knn_shuffled_four$Level[1:147]
+test_target_four <- knn_shuffled_four$Level[148:184]
+
+library(class) 
+
+pred_four <- knn(train = train_four, test = test_four, cl = train_target_four, k = 13) 
+tb_four <- table(test_target_four, pred_four)
+tb_four
+library(caret) 
+confusionMatrix(tb_four) 
 
 
 
 
-
+# logistic regression 
 
 
 
