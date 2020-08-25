@@ -239,6 +239,7 @@ avg_between <- ggplot(data = level_summary,
 grid.arrange(avg_in_degree, avg_out_degree, avg_strength, avg_between)
 
 # check for statistical significance
+# use chi-square test since data is non-parametric 
 
 head(nodes_filtered)
 lm(between ~ JobLevel, data = nodes_filtered) %>%
@@ -526,9 +527,61 @@ confusionMatrix(tb_four)
 
 # logistic regression 
 
+log.model <- glm(Level ~ ., family = "binomial", data = knn_four) 
+summary(log.model) 
+
+# use wald.test function to examine the overall effect of predictors used 
+
+install.packages("aod") 
+library(aod) 
+
+wald.test(b = coef(log.model), Sigma = vcov(log.model), Terms = 2:4)
+
+# we would expect the predictive ability of a trained logit model classifier 
+# to be low given the 
+
+library(car) 
+vif(log.model) 
+# no multicollinearity 
 
 
 
+set.seed(507) 
+
+shuffle_log <- runif(nrow(knn_four)) 
+log_shuffled <- knn_four[order(shuffle_log), ]
+
+
+train_log <- log_shuffled[1:147, ]
+test_log <- log_shuffled[148:184, ]
+
+pred_log_train <- predict(log.model, newdata = train_log, type = "response") 
+hist(pred_log_train) 
+
+pred_log_test <- predict(log.model, newdata = test_log, type = "response") 
+hist(pred_log_test) 
+
+
+
+# generate classification likelihoods 
+
+prediction_cutoff_test <- ifelse(pred_log_test > 0.5, 1, 0) 
+pred_log <- as.factor(prediction_cutoff_test) 
+tb_log <- table(pred_log, test_log$Level) 
+tb_log
+
+
+                
+accuracy <- (tb_log[1,1] + tb_log[2,2]) / 
+  (tb_log[2,1] + tb_log[1,2] + tb_log[1,1] + tb_log[2,2]) 
+
+cat(paste("prediction accuracy is", 
+          format(accuracy * 100.00, digits  = 4), "%")) 
+
+
+
+?table
+# generate erdos-renyi random graphs and predict 
 
 
 
