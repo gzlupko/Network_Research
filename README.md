@@ -13,3 +13,6 @@ Discussion
 References
 The Enron email data set was used for this analysis. Due to computational constraints with regards to visualizations in my local environment, I use smaller network data sets to convey examples of centrality measures used. Job level was stored as a vertex attribute,'position', in the original Enron email data set and the edges represent emails sent to and from individuals throughout the firm.
 
+For the analytics and documentation on this project's code, please follow the below link to my accompanying Kaggle notebook:
+
+https://www.kaggle.com/gianzlupko/classifying-job-level-in-organizational-network
