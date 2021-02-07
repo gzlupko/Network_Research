@@ -16,3 +16,7 @@ The Enron email data set was used for this analysis. Due to computational constr
 For the analytics and documentation on this project's code, please follow the below link to my accompanying Kaggle notebook:
 
 https://www.kaggle.com/gianzlupko/classifying-job-level-in-organizational-network
+
+
+
+![alt text](https://github.com/gzlupko/Network_Research/blob/master/networkclassification.png)
